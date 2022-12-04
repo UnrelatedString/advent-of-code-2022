@@ -1,5 +1,6 @@
-ls = [*iter(input,'e')]
+# from ..septic_tank import * # why can't we have good things
+exec(open('../septic_tank.py').read())
 
-gs = '\n'.join(ls).split('\n\n')
+gs = line_groups(slorp())
 
-print(sum(sorted(sum(map(int,g.split())) for g in gs)[-3:]))
+print(sum(sorted(sum(map(int,g)) for g in gs)[-3:]))
