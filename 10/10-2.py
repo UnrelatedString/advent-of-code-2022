@@ -17,7 +17,7 @@ def ticks(insts):
 def main():
     # h
     yeet = 0
-    grid = [["."]*40 for _ in range(6)]
+    grid = [[" "]*40 for _ in range(6)]
     for i,s in enumerate(ticks(slorp())):
         y, x = divmod(i%(40*6),40)
         if abs(x-s) <= 1:
