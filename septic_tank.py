@@ -50,5 +50,5 @@ def rotate(m):
 def inclusive(a, b):
     if a > b:
         a, b = b, a
-    return range(a, b+1)
+    return range(int(a), int(b+1))
     
