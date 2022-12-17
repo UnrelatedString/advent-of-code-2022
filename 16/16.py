@@ -2,7 +2,8 @@
 exec(open('../septic_tank.py').read())
 
 from collections import defaultdict
-import heapq
+from functools import lru_cache
+
 
 # so I don't have any more accidentally global internal loop variables...
 def main():
@@ -13,64 +14,83 @@ def main():
         to = ''.join(to).split(',')
         valves[valve] = (rate, to)
     
-    worst_case = sum(valves[v][0] for v in valves) * 30
-    print(worst_case)
-    real = frozenset(v for v in valves if valves[v][0])
-    unvisited = {('AA', real, 1)}
-    visited = set()
-    costs = defaultdict(lambda: worst_case)
-    for u in unvisited: costs[u]=0 # maybe
-    better = min
-    max_time = 1
-    # unvisited = 
-    # heapq.heapify(unvisited)
-    # closed is not open
-    while True: # not any(time == 30 for _valve, _closed, time in visited):
-        node = better(unvisited, key=lambda n: costs[n])
-        valve, closed, time = node
-        if time > max_time:
-            print(f'Time {time}: least unreleased {costs[node]}')
-            max_time = time
+    ordered_valves = tuple(valves)
+    valve_bits = {
+            v: 1<<i for i,v in enumerate(ordered_valves) if valves[v][0]
+        }
+
+    def unmask(open_mask):
+        for valve in ordered_valves:
+            if open_mask & 1:
+                yield valve
+            open_mask >>= 1
+
+
+    @lru_cache
+    def release(open_mask):
+        return sum(valves[v][0] for v in unmask(open_mask))
+
+    dists = {}
+    for valve in valves:
+        hence = defaultdict(lambda: float('inf'), {valve: 0})
+        unvisited = {valve}
+        visited = set()
+        for other in dists:
+            hence[other] = dists[other][valve]
+            unvisited.add(other)
+        
+        while unvisited:
+            current = min(unvisited, key = lambda node: hence[node])
+            unvisited.remove(current)
+            for v in valves[current][1]:
+                if v not in visited:
+                    unvisited.add(v)
+                    hence[v] = min(hence[v], hence[current] + 1)
+            visited.add(current)
+        
+        dists[valve] = hence
+    
+    #print('distances computed')
+
+    def distance_to(a, b):
+        return dists[a][b]
+
+    @lru_cache(1000)
+    def distance_to_any_closed(current, open_mask):
+        if open_mask == 2**len(ordered_valves) - 1:
+            return float('inf')
+        
+        #print(open_mask, 2**len(ordered_valves) - 1)
+        
+        return min(
+            distance_to(current, destination) for destination in unmask(~open_mask)
+        )
+        
+
+
+
+    @lru_cache(1000)
+    def search(valve, opened, time):
+        released = release(opened)
         if time == 30:
-            print(worst_case - costs[node])
-            break
-        # cost = sum(valves[v][0] for v in closed) * (30 - time)
-        # cost += costs[node]
-        # cost = costs[node]
-        # cost -= sum(valves[v][0] for v in closed)
-        cost = sum(valves[v][0] for v in closed) + costs[node]
-        if valve in closed:
-            open_this = valve, closed - {valve}, time + 1
-            unvisited.add(open_this)
-            costs[open_this] = better(costs[open_this], cost)
+            return released
+        
+        further = released * (30 - time) # default value just waiting in place
+
+        if valve in valve_bits and not valve_bits[valve] & opened:
+            open_this = search(valve, valve_bits[valve] | opened, time + 1)
+            further = max(further, open_this)
         for v in valves[valve][1]:
-            move = v, closed, time + 1
-            for previous in range(time):
-                if (v, closed, previous) in visited: # possible pruning strategy?
-                    continue
-            unvisited.add(move)
-            costs[move] = better(costs[move], cost)
-        unvisited -= visited # paranoia
-        visited.add(node)
-    
+            if distance_to_any_closed(v, opened) < (29 - time):
+                move = search(v, opened, time + 1)
+                further = max(further, move)
 
-    # for Time in range(1,31):
-    #     for node in visited:
-    #         value, closed, time = node
-    #         if time == Time:
-    #             print(costs[node])
+        print(valve, opened, time, further + released)
+        return further + released
 
-    # for node in sorted(visited, key = lambda n: n[2]):
-    #     print(node, costs[node])
 
-    # for node in visited:
-    #     value, closed, time = node
-    #     if time == 30:
-    #         print(worst_case - costs[node])
-    
-    # # time reversal means wait no that's pointless
+    print(search('AA', 0, 1))
 
-    # unvisited = {(valve, frozenset(), 30) for valve in valves}
 
 
 
