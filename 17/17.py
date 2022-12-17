@@ -21,7 +21,7 @@ def main():
         0, 1)
     ])
 
-    pattern = open(0).readline().strip()
+    pattern = open('input.txt').readline().strip() # input()
     #print(len(pattern))
     gusts = itr.cycle(pattern)
     grid = set()
