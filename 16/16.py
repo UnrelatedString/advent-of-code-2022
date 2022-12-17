@@ -52,24 +52,7 @@ def main():
     
     #print('distances computed')
 
-    def distance_to(a, b):
-        return dists[a][b]
-
-    @lru_cache(1000)
-    def distance_to_any_closed(current, open_mask):
-        if open_mask == 2**len(ordered_valves) - 1:
-            return float('inf')
-        
-        #print(open_mask, 2**len(ordered_valves) - 1)
-        
-        return min(
-            distance_to(current, destination) for destination in unmask(~open_mask)
-        )
-        
-
-
-
-    @lru_cache(1000)
+    @lru_cache(None)
     def search(valve, opened, time):
         released = release(opened)
         if time == 30:
@@ -80,9 +63,9 @@ def main():
         if valve in valve_bits and not valve_bits[valve] & opened:
             open_this = search(valve, valve_bits[valve] | opened, time + 1)
             further = max(further, open_this)
-        for v in valves[valve][1]:
-            if distance_to_any_closed(v, opened) < (29 - time):
-                move = search(v, opened, time + 1)
+        for v in unmask(~opened):
+            if 0 < dists[valve][v] < (29 - time):
+                move = search(v, opened, time + dists[valve][v])
                 further = max(further, move)
 
         #print(valve, opened, time, further + released)
