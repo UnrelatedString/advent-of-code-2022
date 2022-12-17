@@ -32,20 +32,22 @@ def main():
 
     abridge = 1000000000000 - originally[0]
     cycles, excess = divmod(abridge, cycle_length)
+    #print(excess)
 
     ret = cycle_value * cycles # + originally[1]
 
-    ret += simulate(itr.islice(itr.cycle(enumerate(shapes)), shape, None),
-                    itr.islice(itr.cycle(enumerate(pattern)), gust, None),
+    ret += simulate(itr.islice(itr.cycle(enumerate(shapes)), 0, None),
+                    itr.islice(itr.cycle(enumerate(pattern)), 0, None),
                     originally[0] + excess)
     
-    print(ret - 1)
+    print(ret)
 
 
 
 def simulate(shapes, gusts, limit = None):
     rocks = 0
     seen = {}
+    seeen = set()
     grid = set()
     while True:
         top = int(max(p.imag for p in grid) if grid else 0)
@@ -71,9 +73,13 @@ def simulate(shapes, gusts, limit = None):
             j, gust = next(gusts)
 
             if pos == complex(2, height):
-                if (i,j) in seen:
+                if (i,j) in seen and 1000000000000 % rocks:
+                    #print(rocks)
                     return (rocks, top), seen[(i,j)], i, j
-                seen[(i,j)] = rocks, top
+                elif (i,j) in seeen:
+                    seen[(i,j)] = rocks, top
+                else:
+                    seeen.add((i,j))
 
             gust = (-1) ** (gust == '<')
             if not check_collision(gust):
