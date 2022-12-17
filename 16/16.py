@@ -85,7 +85,7 @@ def main():
                 move = search(v, opened, time + 1)
                 further = max(further, move)
 
-        print(valve, opened, time, further + released)
+        #print(valve, opened, time, further + released)
         return further + released
 
 
