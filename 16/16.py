@@ -65,7 +65,7 @@ def main():
             further = max(further, open_this)
         for v in unmask(~opened):
             if 0 < dists[valve][v] < (29 - time):
-                move = search(v, opened, time + dists[valve][v])
+                move = search(v, opened, time + dists[valve][v]) + released * (dists[valve][v] - 1)
                 further = max(further, move)
 
         #print(valve, opened, time, further + released)
