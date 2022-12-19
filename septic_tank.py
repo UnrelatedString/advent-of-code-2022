@@ -51,4 +51,7 @@ def inclusive(a, b):
     if a > b:
         a, b = b, a
     return range(int(a), int(b+1))
+
+def tuple_augment(into, at, f):
+    return *into[:at], f(into[at]), *into[at+1:]
     
