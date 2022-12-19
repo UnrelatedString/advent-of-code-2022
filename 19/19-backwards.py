@@ -29,21 +29,17 @@ def main():
         while True:
 
             unvisited = {((0, 0, 0, final_geodes)[::-1],
-                          (0, 0, 0, 0),
                           1)}
             
             visited = set()
 
-            target = (0, 0, 0, 0), (1, 0, 0, 0), time_limit
 
-            def try_add(new_resources, new_robots, new_time):
-                new_state = new_resources, new_robots, new_time
+            def try_add(new_resources, new_time):
+                new_state = new_resources, new_time
 
-                if new_state == target:
-                    unvisited.add(new_state)
-                    return
+                # print(new_state)
 
-                if new_time >= time_limit:
+                if new_time > time_limit:
                     return
                 if new_state in visited:
                     return
@@ -51,32 +47,32 @@ def main():
                 unvisited.add(new_state)
 
 
-            while unvisited and target not in visited:
+            while unvisited:
                 current = unvisited.pop()
-                resources, robots, time = current
+                resources, time = current
 
                 #print(current)
 
+                if time == time_limit:
+                    if sum(resources) == resources[0] <= time:
+                        break
+
                 for i in range(4):
                     if resources[i]:
-                        new_resources = tuple_augment(resources, i, lambda x: max(0, x - time - 1))
-                        new_robots = tuple_augment(robots, i, lambda x: x+1)
-                        try_add(new_resources, new_robots, time + 1)
-                    if robots[i]:
-                        new_resources = tuple(resource + cost for resource, cost in zip(resources, costs[i]))
-                        new_robots = tuple_augment(robots, i, lambda x: x-1)
-                        try_add(new_resources, new_robots, time + 1)
+                        new_resources = tuple_augment(resources, i, lambda x: max(0, x - time))
+                        new_resources = tuple(resource + cost for resource, cost in zip(new_resources, costs[i]))
+                        try_add(new_resources, time + 1)
                 
-                try_add(resources, robots, time + 1)
+                try_add(resources, time + 1)
                 
                 visited.add(current)
             
-            #print(visited)
-
-            if target in visited:
-                print(final_geodes)
             else:
                 break
+            
+            # print(visited)
+
+            print(final_geodes)
 
             final_geodes += 1
         
