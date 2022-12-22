@@ -32,6 +32,9 @@ def main():
 
     pm = [[*r] for r in m]
 
+    size = 4
+    ol = size - 1
+
     for inst in path:
         if inst == 'L':
             dir -= 1
@@ -42,13 +45,19 @@ def main():
                 new = pos + (1j) ** dir
                 newdir = dir
                 if new.imag >= len(m) or new.real >= len(m[int(new.imag)]) or zind(new, m) == ' ':
-                    xq, xr, yq, yr = *divmod(pos.real, 4), *divmod(pos.imag, 4)
+                    xq, xr, yq, yr = *divmod(pos.real, size), *divmod(pos.imag, size)
                     #print(xq, xr, yq, yr)
                     xq, yq, newdir = edgemap[(xq, yq, dir)]
-                    cr = complex(xr, yr)
-                    cr *= (-1j) ** (newdir - dir)
-                    xr, yr = cr.real % 4, cr.imag % 4
-                    new = complex(xq*4 + (3 - xr), yq*4 + (3-yr))
+                    rr = [-yr, -xr, yr, xr][dir]
+                    if newdir == 0:
+                        xr, yr = ol, ol-rr
+                    elif newdir == 1:
+                        xr, yr = ol-rr, ol
+                    elif newdir == 2:
+                        xr, yr = 0, rr
+                    else:
+                        xr, yr = rr, 0
+                    new = complex(xq*size + xr, yq*size + yr)
                     newdir ^= 2
                     #print(xq, yq, new, newdir)
                 if zind(new, m) == '#':
