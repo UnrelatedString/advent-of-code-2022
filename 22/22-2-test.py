@@ -46,20 +46,21 @@ def main():
                 newdir = dir
                 if new.imag >= len(m) or new.real >= len(m[int(new.imag)]) or zind(new, m) == ' ':
                     xq, xr, yq, yr = *divmod(pos.real, size), *divmod(pos.imag, size)
-                    #print(xq, xr, yq, yr)
+                    print(xq, xr, yq, yr)
                     xq, yq, newdir = edgemap[(xq, yq, dir)]
-                    rr = [-yr, -xr, yr, xr][dir]
+                    rr = [ol-yr, ol-xr, yr, xr][dir]
                     if newdir == 0:
-                        xr, yr = ol, ol-rr
+                        xr, yr = ol, rr
                     elif newdir == 1:
-                        xr, yr = ol-rr, ol
+                        xr, yr = rr, ol
                     elif newdir == 2:
                         xr, yr = 0, rr
                     else:
                         xr, yr = rr, 0
-                    new = complex(xq*size + xr, yq*size + yr)
                     newdir ^= 2
-                    #print(xq, yq, new, newdir)
+                    new = complex(xq*size + xr, yq*size + yr)
+                    
+                    print(xq, yq, new, newdir)
                 if zind(new, m) == '#':
                     break
                 pos, dir = new, newdir

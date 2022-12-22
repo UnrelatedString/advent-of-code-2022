@@ -31,6 +31,11 @@ def main():
     edgemap = {k:v.pop() for k,v in bidict(edgemap).items()}
 
 
+    pm = [[*r] for r in m]
+
+    size = 50
+    ol = size - 1
+
     for inst in path:
         if inst == 'L':
             dir -= 1
@@ -41,18 +46,29 @@ def main():
                 new = pos + (1j) ** dir
                 newdir = dir
                 if new.imag >= len(m) or new.real >= len(m[int(new.imag)]) or zind(new, m) == ' ':
-                    xq, xr, yq, yr = *divmod(pos.real, 50), *divmod(pos.imag, 50)
-                    print(xq, xr, yq, yr)
+                    xq, xr, yq, yr = *divmod(pos.real, size), *divmod(pos.imag, size)
+                    #print(xq, xr, yq, yr)
                     xq, yq, newdir = edgemap[(xq, yq, dir)]
-                    new = complex(xq*50 + (49 - xr), yq*50 + (49-yr))
+                    rr = [ol-yr, ol-xr, yr, xr][dir]
+                    if newdir == 0:
+                        xr, yr = ol, rr
+                    elif newdir == 1:
+                        xr, yr = rr, ol
+                    elif newdir == 2:
+                        xr, yr = 0, rr
+                    else:
+                        xr, yr = rr, 0
                     newdir ^= 2
-                    print(xq, yq, new, newdir)
+                    new = complex(xq*size + xr, yq*size + yr)
+                    
+                    #print(xq, yq, new, newdir)
                 if zind(new, m) == '#':
                     break
                 pos, dir = new, newdir
+                pm[int(pos.imag)][int(pos.real)] = '>v<^'[dir]
         
         dir %= 4
-        print(pos, dir, inst)
+       # print(pos, dir, inst)
     
     pos += 1+1j
 
