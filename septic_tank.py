@@ -34,12 +34,16 @@ def bidict(d):
     for k,v in d.items():
         ret[k].add(v)
         ret[v].add(k)
+    return ret
 
 def windows(l,n):
     return [l[i:i+n] for i in range(len(l)-n+1)]
 
 def zind(z,g):
-    return g[int(z.imag)][int(z.real)]
+    try:
+        return g[int(z.imag)][int(z.real)]
+    except:
+        return None
 
 def zround(z):
     return complex(round(z.real), round(z.imag))
