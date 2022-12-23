@@ -40,10 +40,7 @@ def windows(l,n):
     return [l[i:i+n] for i in range(len(l)-n+1)]
 
 def zind(z,g):
-    try:
-        return g[int(z.imag)][int(z.real)]
-    except:
-        return None
+    return g[int(z.imag)][int(z.real)]
 
 def zround(z):
     return complex(round(z.real), round(z.imag))
