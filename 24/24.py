@@ -19,11 +19,10 @@ def main():
     period = (x + 1) * (y + 1)
     origin = 0-1j
 
-    # unvisited = deque()
-    # unvisited.appendleft((origin, period))
+    unvisited = {(origin, period)}
 
-    # visited = set()
-    # dists = dd(lambda: float('inf'), {(origin, period): 0})
+    visited = set()
+    dists = dd(lambda: float('inf'), {(origin, period): 0})
 
     def blizzard_at(z, time):
         if z in (origin, goal):
@@ -37,47 +36,32 @@ def main():
                 return True
         return False
 
-    # while unvisited:
-    #     node = unvisited.pop()
+    while unvisited:
+        node = min(unvisited, key=lambda n:dists[n])
+        unvisited.remove(node)
 
-    #     pos, time = node
+        pos, time = node
 
         
 
-    #     if pos == goal:
-    #         print(dists[(pos, time)])
-    #         #print(dists)
-    #         break
+        if pos == goal:
+            print(dists[(pos, time)])
+            #print(dists)
+            break
             
-    #     time %= period
-    #     #print(node)
+        time %= period
+        #print(node)
 
-    #     for o in von_neumann + (0,):
-    #         new_pos = pos + o
-    #         if 0 <= new_pos.real <= x and (0 <= new_pos.imag <= y or new_pos in (origin, goal)) \
-    #             and (new_pos, time+1) not in visited and not blizzard_at(new_pos, time + 1):
+        for o in von_neumann + (0,):
+            new_pos = pos + o
+            if 0 <= new_pos.real <= x and (0 <= new_pos.imag <= y or new_pos in (origin, goal)) \
+                and (new_pos, time+1) not in visited and not blizzard_at(new_pos, time + 1):
 
-    #             unvisited.appendleft((new_pos, time + 1))
-    #             dists[(new_pos, time + 1)] = min(dists[(new_pos, time + 1)], dists[node] + 1)
+                unvisited.add((new_pos, time + 1))
+                dists[(new_pos, time + 1)] = min(dists[(new_pos, time + 1)], dists[node] + 1)
         
-    #     visited.add(node)
-    
-    time = 0
-    ps = {origin}
-    while ps and goal not in ps:
-        nps = set()
-        time += 1
-        for p in ps:
-            for o in von_neumann + (0,):
-                new_pos = p+o
-                if 0 <= new_pos.real <= x and (0 <= new_pos.imag <= y or new_pos in (origin, goal)) and not blizzard_at(new_pos, time):
-                    nps.add(new_pos)
-        ps = nps
-    print(time)
-
-    
-
-        
+        visited.add(node)
+   
 
 
 if __name__ == '__main__':
