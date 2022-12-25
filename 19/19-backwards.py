@@ -29,41 +29,51 @@ def main():
         while True:
 
             unvisited = {((0, 0, 0, final_geodes)[::-1],
+                          (0, 0, 0, 0),
                           1)}
             
             visited = set()
 
 
-            def try_add(new_resources, new_time):
-                new_state = new_resources, new_time
+            def try_add(resources, unfulfillable, time):
+
+                resources, unfulfillable = zip(*(
+                    (resource + 1, debt - 1) if debt else (resource, 0) for resource, debt in zip(resources, unfulfillable)
+                ))                
+
+                new_state = resources, unfulfillable, time
 
                 # print(new_state)
 
-                if new_time > time_limit:
+                if time > time_limit:
                     return
                 if new_state in visited:
                     return
                 
+                # print(new_state)
                 unvisited.add(new_state)
 
 
             while unvisited:
                 current = unvisited.pop()
-                resources, time = current
+                resources, unfulfillable, time = current
 
-                #print(current)
+                # print(f'From {current}:')
 
                 if time == time_limit:
-                    if sum(resources) == resources[0] <= time:
+                    if sum(resources) == resources[0] <= time and unfulfillable == (0,0,0,0):
                         break
 
                 for i in range(4):
                     if resources[i]:
-                        new_resources = tuple_augment(resources, i, lambda x: max(0, x - time))
-                        new_resources = tuple(resource + cost for resource, cost in zip(new_resources, costs[i]))
-                        try_add(new_resources, time + 1)
+                        fulfill = max(0, resources[i] - time, unfulfillable[i] + 5)
+                        new_resources = tuple_augment(resources, i, lambda _: fulfill)
+                        new_unfulfillable = tuple_augment(unfulfillable, i, lambda x: max(0, x - fulfill))
+                        new_unfulfillable = tuple(resource + cost for resource, cost in zip(new_unfulfillable, costs[i]))
+                        
+                        try_add(new_resources, new_unfulfillable, time + 1)
                 
-                try_add(resources, time + 1)
+                try_add(resources, unfulfillable, time + 1)
                 
                 visited.add(current)
             
