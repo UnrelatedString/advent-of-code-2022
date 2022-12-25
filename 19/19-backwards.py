@@ -8,7 +8,7 @@ from math import ceil
 # so I don't have any more accidentally global internal loop variables...
 def main():
     blueprints = {}
-    time_limit = 6
+    time_limit = 26
 
     for group in slorp(): # line_groups(slorp()):
 
@@ -28,9 +28,9 @@ def main():
         final_geodes = 1
         while True:
 
-            unvisited = {((0, 0, 0, final_geodes)[::-1],
-                          (0, 0, 0, 0),
-                          1)}
+            unvisited = {((0, 0, 0, 0),(0, 0, 0, final_geodes)[::-1],
+                          
+                          0)}
             
             visited = set()
 
@@ -38,7 +38,7 @@ def main():
             def try_add(resources, unfulfillable, time):
 
                 resources, unfulfillable = zip(*(
-                    (resource + 1, debt - 1) if debt else (resource, 0) for resource, debt in zip(resources, unfulfillable)
+                    (resource + 1, debt - 1) if debt > 0 else (resource, 0) for resource, debt in zip(resources, unfulfillable)
                 ))                
 
                 new_state = resources, unfulfillable, time
@@ -66,9 +66,10 @@ def main():
 
                 for i in range(4):
                     if resources[i]:
-                        fulfill = max(0, resources[i] - time, unfulfillable[i] + 5)
-                        new_resources = tuple_augment(resources, i, lambda _: fulfill)
-                        new_unfulfillable = tuple_augment(unfulfillable, i, lambda x: max(0, x - fulfill))
+                        clear_debt = max(0, resources[i] - time)
+                        fulfillable = min(clear_debt, unfulfillable[i])
+                        new_resources = tuple_augment(resources, i, lambda x: clear_debt)
+                        new_unfulfillable = tuple_augment(unfulfillable, i, lambda x: x - fulfillable)
                         new_unfulfillable = tuple(resource + cost for resource, cost in zip(new_unfulfillable, costs[i]))
                         
                         try_add(new_resources, new_unfulfillable, time + 1)
